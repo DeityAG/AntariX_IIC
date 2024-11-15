@@ -1,27 +1,19 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import json
-from streamlit_lottie import st_lottie
 from streamlit_echarts import st_echarts
+import os
 
-# Page config
+# Set page configuration
 st.set_page_config(page_title="Orbit Predictor", page_icon="🛰️", layout="wide")
-
-# Load Lottie animation
-def load_lottie_animation(filepath: str):
-    with open(filepath, "r") as f:
-        return json.load(f)
-
-lottie_data = load_lottie_animation("assets/lottie.json")
 
 # Sidebar
 with st.sidebar:
     st.title("Orbit Predictor")
-    st_lottie(lottie_data, height=200, key="lottie")
     st.markdown("---")
     
     st.header("Navigation")
+    # Basic radio buttons for navigation without using st_pages or any external library
     selected_page = st.radio("Go to", ["Introduction", "Orbit Prediction", "Error Analysis", "3D Visualization", "Settings"])
 
     st.markdown("### About")
@@ -42,6 +34,7 @@ elif selected_page == "Orbit Prediction":
     st.write("Use this module to predict satellite orbits with the SGP4 and hybrid ML models.")
     tle_input = st.text_area("Enter TLE data for prediction", placeholder="Two-Line Element (TLE) data")
     if st.button("Run Prediction"):
+        # Here you would add your orbit prediction logic
         st.write("Performing orbit prediction...")  # Placeholder for actual prediction function
 
 elif selected_page == "Error Analysis":
@@ -75,7 +68,7 @@ elif selected_page == "3D Visualization":
     # ECharts for interactive visualization
     st.subheader("Interactive Visualization (ECharts)")
 
-    # Custom EChart configuration
+    # Custom EChart configuration for eccentricity vs inclination
     options = {
         "title": {"text": "Eccentricity vs Inclination"},
         "tooltip": {"trigger": "axis"},
@@ -99,7 +92,11 @@ elif selected_page == "3D Visualization":
         ],
     }
 
-    st_echarts(options=options, height="400px")
+    # Display EChart using streamlit-echarts library
+    try:
+        st_echarts(options=options, height="400px")
+    except Exception as e:
+        st.error(f"Error displaying EChart: {e}")
 
 elif selected_page == "Settings":
     st.title("Settings")
