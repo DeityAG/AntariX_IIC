@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+from model_predictions import compute_original_trajectory, evaluate_model, plot_single_satellite_with_original
 
 # Streamlit app configuration
 st.set_page_config(
@@ -84,31 +85,32 @@ if current_page == "app":
     if st.button("Run Prediction"):
         if tle_input.strip():
             st.write("Processing TLE data...")
-            st.session_state['tle_data'] = tle_input.strip()
             
-            # Placeholder for predictions (to be replaced with your ML model)
-            predictions = {
-                "Satellite": ["ISS (ZARYA)", "CSS (TIANHE)", "ISS (NAUKA)", "FREGAT DEB"],
-                "Predicted Altitude (km)": [420, 400, 430, 370],  # Dummy data
-                "Predicted Velocity (km/s)": [7.66, 7.7, 7.68, 7.5],  # Dummy data
-                "Orbital Inclination (°)": [51.6, 41.4, 51.6, 51.6],  # Dummy data
-            }
-            df = pd.DataFrame(predictions)
+            # Placeholder for actual TLE data parsing and processing
+            # Replace with the actual TLE processing function as needed
+            tle_data = pd.DataFrame([{
+                "name": "ISS (ZARYA)",
+                "line1": "1 25544U 98067A   24320.41934031  .00017230  00000+0  31097-3 0  9991",
+                "line2": "2 25544  51.6416 286.1371 0007839 218.0643 253.6102 15.49814552482001"
+            }])  # Replace with real TLE processing
+            
+            # Generate original trajectory
+            original_positions = compute_original_trajectory(tle_data, "ISS (ZARYA)", days=30)
+            
+            # Evaluate model and get prediction results
+            results = evaluate_model(tle_data, prediction_days=[10, 20, 30])
             
             # Display results
             st.header("Prediction Results")
-            st.dataframe(df)
+            st.write("### Error Metrics")
+            for key, result in results.items():
+                st.write(f"{key}: Mean Error = {result['mean_error']:.2f} km, Max Error = {result['max_error']:.2f} km")
             
-            # Visualize results
-            st.write("### Graph of Predictions")
-            fig = px.bar(
-                df,
-                x="Satellite",
-                y="Predicted Altitude (km)",
-                title="Altitude Prediction per Satellite",
-                labels={"Predicted Altitude (km)": "Altitude (km)"}
-            )
-            st.plotly_chart(fig)
+            # Plot the results
+            st.write("### Prediction Plots")
+            plot_single_satellite_with_original(results, "ISS (ZARYA)", original_positions)
+            st.pyplot()  # Display the matplotlib plots
+            
         else:
             st.error("Please input or upload TLE data before running predictions.")
 
