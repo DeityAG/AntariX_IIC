@@ -338,5 +338,8 @@ def plot_single_satellite_with_original(results, satellite_name, original_positi
 # Plot the results
 plot_single_satellite_with_original(results, "ISS (ZARYA)", original_positions)
 
+# If the file is run directly, this ensures the module can be imported
+if __name__ == "__main__":
+    print("This is the model_predictions module. Import it into your Streamlit app for functionality.")
 
 
