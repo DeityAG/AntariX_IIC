@@ -3,6 +3,11 @@ import pandas as pd
 import plotly.express as px
 import os
 
+from streamlit_navigation_bar import st_navbar
+
+page = st_navbar(["Home", "Documentation", "Examples", "Community", "About"])
+st.write(page)
+
 # Set page configuration
 st.set_page_config(page_title="Codeplay-Satellite Orbit Predictor", page_icon="🛰️", layout="wide")
 
