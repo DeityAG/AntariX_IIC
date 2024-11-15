@@ -1,9 +1,16 @@
 import streamlit as st
+import streamlit_shadcn_ui as ui
 import plotly.graph_objects as go
 import numpy as np
 
 st.title("3D Visualization")
 st.write("Interactive 3D Satellite Orbit Visualization with Plotly")
+
+# Add tabs above the 3D plot for selecting the prediction duration
+value = ui.tabs(options=["10 days", "20 days", "30 days"], default_value="10 days", key="duration")
+
+# Display selected option (currently a placeholder)
+st.write("Selected duration:", value)
 
 # Define Earth's radius
 earth_radius = 6371  # in km
