@@ -8,16 +8,10 @@ st.set_page_config(page_title="Codeplay-Satellite Orbit Predictor", page_icon="ð
 
 # Sidebar Navigation
 st.sidebar.title("Codeplay Satellite Orbit Predictor")
-st.sidebar.markdown("---")
-st.sidebar.write("Navigate to different sections:")
-st.sidebar.write("1. Welcome & Results - Input TLE Data and View Predictions")
-st.sidebar.write("2. 3D Visualization - Interactive Plot")
-st.sidebar.write("3. LLM Chat - Query the Model")
-st.sidebar.write("4. Details & References - Learn more")
 
 # Display the app name and logo on the main page
 st.title("Codeplay-Satellite Orbit Predictor")
-logo_path = "assets/logo.png"
+logo_path = "assets/isrologo1.png"
 if os.path.exists(logo_path):
     st.image(logo_path, width=200)
 
