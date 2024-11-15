@@ -3,21 +3,20 @@ import streamlit as st
 # Set page configuration
 st.set_page_config(page_title="Codeplay Satellite Orbit Predictor", page_icon="🛰️", layout="wide")
 
-# Sidebar Navigation
-st.sidebar.title("Codeplay Satellite Orbit Predictor")
-st.sidebar.markdown("---")
-st.sidebar.write("Navigate to different sections:")
-st.sidebar.write("1. Home - ML Model and Predictions")
-st.sidebar.write("2. Globe Visualization - Interactive Plot")
-st.sidebar.write("3. Research Work - Project Details")
+# Define navigation pages
+PAGES = {
+    "Home": "pages/Home.py",
+    "Globe Visualization": "pages/Globe_Visualization.py",
+    "Research Work": "pages/Research_Work.py"
+}
 
-# Load selected page
-selected_page = st.sidebar.radio("Choose a page", ["Home", "Globe Visualization", "Research Work"])
+# Define navigation buttons
+st.sidebar.title("Navigation")
+st.sidebar.write("Choose a page:")
+page = st.sidebar.radio("", list(PAGES.keys()), index=0)
 
-# Redirect to the appropriate page file based on selection
-if selected_page == "Home":
-    import pages.Home
-elif selected_page == "Globe Visualization":
-    import pages.Globe_Visualization
-elif selected_page == "Research Work":
-    import pages.Research_Work
+# Show selected page
+if page == "Home":
+    exec(open(PAGES[page]).read())
+elif page
+
