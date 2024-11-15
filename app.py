@@ -5,9 +5,14 @@ import pages as pg
 
 st.set_page_config(initial_sidebar_state="collapsed")
 
+# Define pages
 pages = ["Install", "User Guide", "API", "Examples", "Community", "GitHub"]
-parent_dir = os.path.dirname(os.path.abspath(_file_))
+
+# Corrected __file__ typo
+parent_dir = os.path.dirname(os.path.abspath(__file__))
 logo_path = os.path.join(parent_dir, "cubes.svg")
+
+# Define URLs and styles
 urls = {"GitHub": "https://github.com/gabrieltempass/streamlit-navigation-bar"}
 styles = {
     "nav": {
@@ -29,6 +34,7 @@ styles = {
     }
 }
 
+# Set up the navigation bar
 page = st_navbar(
     pages,
     logo_path=logo_path,
@@ -37,6 +43,7 @@ page = st_navbar(
     options=False,
 )
 
+# Define page functions
 functions = {
     "Home": pg.show_home,
     "Install": pg.show_install,
