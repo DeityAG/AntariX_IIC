@@ -4,7 +4,7 @@ import plotly.express as px
 
 # Streamlit app configuration
 st.set_page_config(
-    page_title="Codeplay-Satellite Orbit Predictor",
+    page_title="AmtariX",
     page_icon="🛰️",
     layout="wide"
 )
@@ -51,12 +51,12 @@ nav_bar()
 # Page content
 if current_page == "app":
     # App content
-    st.title("Codeplay-Satellite Orbit Predictor")
+    st.title("Antarix")
     st.write("### 🛰️ Predicting Satellite Orbits with ML")
     
     st.write(
         """
-        Welcome to the Codeplay Satellite Orbit Predictor. This tool allows you to input TLE (Two-Line Element) data 
+        Welcome to the Antarix. This tool allows you to input TLE (Two-Line Element) data 
         to predict satellite orbits with precision.
         """
     )
