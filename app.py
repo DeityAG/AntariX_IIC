@@ -102,28 +102,34 @@ elif selected_option == "Input TLE Data":
         if tle_input.strip():
             st.write("Processing TLE data...")
             st.session_state['tle_data'] = tle_input.strip()
-            
-            # Placeholder for predictions (to be replaced with your ML model)
+
+            # Load the ARIMA model
+            model_path = "arima_model.pkl"  # Update this with the actual path to your model
+            loaded_model = load_model(model_path)
+
+            # Generate predictions dynamically
+            steps = st.slider("Select Forecast Steps:", min_value=1, max_value=30, value=10, step=1)
+            forecasted_errors = loaded_model.forecast(steps=steps)
+
+            # Create a DataFrame for predictions
             predictions = {
-                "Satellite": ["ISS (ZARYA)", "CSS (TIANHE)", "ISS (NAUKA)", "FREGAT DEB"],
-                "Predicted Altitude (km)": [420, 400, 430, 370],  # Dummy data
-                "Predicted Velocity (km/s)": [7.66, 7.7, 7.68, 7.5],  # Dummy data
-                "Orbital Inclination (°)": [51.6, 41.4, 51.6, 51.6],  # Dummy data,
+                "Step": list(range(1, steps + 1)),
+                "Forecasted Error": forecasted_errors
             }
             df = pd.DataFrame(predictions)
-            
+
             # Display results
             st.header("Prediction Results")
             st.dataframe(df)
-            
+
             # Visualize results
             st.write("### Graph of Predictions")
-            fig = px.bar(
+            fig = px.line(
                 df,
-                x="Satellite",
-                y="Predicted Altitude (km)",
-                title="Altitude Prediction per Satellite",
-                labels={"Predicted Altitude (km)": "Altitude (km)"}
+                x="Step",
+                y="Forecasted Error",
+                title="Forecasted Error per Step",
+                labels={"Forecasted Error": "Error", "Step": "Prediction Step"}
             )
             st.plotly_chart(fig)
         else:
