@@ -1,68 +1,42 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from pages.model_predictions import compute_original_trajectory, evaluate_model, plot_single_satellite_with_original
 
 # Streamlit app configuration
 st.set_page_config(
-    page_title="AmtariX",
+    page_title="Codeplay-Satellite Orbit Predictor",
     page_icon="🛰️",
     layout="wide"
 )
 
-# Function to create a horizontal navigation bar
-def nav_bar():
-    st.markdown(
-        """
-        <style>
-        .nav-bar {
-            background-color: #f8f9fa;
-            padding: 10px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-around;
-        }
-        .nav-bar a {
-            text-decoration: none;
-            color: #007bff;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        .nav-bar a:hover {
-            text-decoration: underline;
-            color: #0056b3;
-        }
-        </style>
-        <div class="nav-bar">
-            <a href="/?nav=app" target="_self">App</a>
-            <a href="/?nav=globe" target="_self">Globe Visualization</a>
-            <a href="/?nav=research" target="_self">Research Work</a>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+# Display the app title and logo
+st.image("assets/banner.png", use_container_width=True)  
+st.markdown(
+    """
+    <h1 style="font-size:36px;">
+        Antari<span style="color:#29B5E8;">X</span>-Satellite Orbit Predictor
+    </h1>
+    """,
+    unsafe_allow_html=True
+)
+st.write("### 🛰️ Predicting Satellite Orbits with ML")
 
-# Determine the current page from query parameters
-query_params = st.experimental_get_query_params()
-current_page = query_params.get("nav", ["app"])[0]
+# Introduction text
+st.write(
+    """
+    Welcome to the Codeplay Satellite Orbit Predictor. This tool allows you to input TLE (Two-Line Element) data 
+    to predict satellite orbits with precision. Use the sections in the sidebar to navigate.
+    """
+)
 
-# Display navigation bar
-nav_bar()
+# Sidebar for additional functionalities
+st.sidebar.header("Navigation")
+st.sidebar.write("Navigate to different sections:")
+nav_options = ["Input TLE Data", "About the Model", "Contact"]
+selected_option = st.sidebar.radio("Choose an option:", nav_options)
 
-# Page content
-if current_page == "app":
-    # App content
-    st.image("assets/banner.jpg", use_column_width=True)  # Display the banner at the top
-    st.title("AmtariX")
-    st.write("### 🛰️ Predicting Satellite Orbits with ML")
-    
-    st.write(
-        """
-        Welcome to AmtariX. This tool allows you to input TLE (Two-Line Element) data 
-        to predict satellite orbits with precision.
-        """
-    )
-    
+# Handle navigation
+if selected_option == "Input TLE Data":
     # TLE Data Input Section
     st.header("Input TLE Data")
     st.write("Paste or upload your TLE data below:")
@@ -85,52 +59,77 @@ if current_page == "app":
     if st.button("Run Prediction"):
         if tle_input.strip():
             st.write("Processing TLE data...")
+            st.session_state['tle_data'] = tle_input.strip()
             
-            # Placeholder for actual TLE data parsing and processing
-            # Replace with the actual TLE processing function as needed
-            tle_data = pd.DataFrame([{
-                "name": "ISS (ZARYA)",
-                "line1": "1 25544U 98067A   24320.41934031  .00017230  00000+0  31097-3 0  9991",
-                "line2": "2 25544  51.6416 286.1371 0007839 218.0643 253.6102 15.49814552482001"
-            }])  # Replace with real TLE processing
-            
-            # Generate original trajectory
-            original_positions = compute_original_trajectory(tle_data, "ISS (ZARYA)", days=30)
-            
-            # Evaluate model and get prediction results
-            results = evaluate_model(tle_data, prediction_days=[10, 20, 30])
+            # Placeholder for predictions (to be replaced with your ML model)
+            predictions = {
+                "Satellite": ["ISS (ZARYA)", "CSS (TIANHE)", "ISS (NAUKA)", "FREGAT DEB"],
+                "Predicted Altitude (km)": [420, 400, 430, 370],  # Dummy data
+                "Predicted Velocity (km/s)": [7.66, 7.7, 7.68, 7.5],  # Dummy data
+                "Orbital Inclination (°)": [51.6, 41.4, 51.6, 51.6],  # Dummy data,
+            }
+            df = pd.DataFrame(predictions)
             
             # Display results
             st.header("Prediction Results")
-            st.write("### Error Metrics")
-            for key, result in results.items():
-                st.write(f"{key}: Mean Error = {result['mean_error']:.2f} km, Max Error = {result['max_error']:.2f} km")
+            st.dataframe(df)
             
-            # Plot the results
-            st.write("### Prediction Plots")
-            plot_single_satellite_with_original(results, "ISS (ZARYA)", original_positions)
-            st.pyplot()  # Display the matplotlib plots
-            
+            # Visualize results
+            st.write("### Graph of Predictions")
+            fig = px.bar(
+                df,
+                x="Satellite",
+                y="Predicted Altitude (km)",
+                title="Altitude Prediction per Satellite",
+                labels={"Predicted Altitude (km)": "Altitude (km)"}
+            )
+            st.plotly_chart(fig)
         else:
             st.error("Please input or upload TLE data before running predictions.")
-
-elif current_page == "globe":
-    # Globe Visualization content
-    st.title("Globe Visualization")
-    st.write("### 🗺️ Visualizing Satellite Orbits Globally")
+    
+    # Add TLE Data Table directly below input section
+    st.header("TLE Data Table")
     st.write(
         """
-        This section is under development and will provide an interactive 3D globe to visualize satellite orbits.
+        This table explains the meaning of the different columns in a TLE (Two-Line Element) dataset.
+        """
+    )
+    
+    # Sample TLE table data
+    table_data = [
+        {"Column": 1, "Example": "1", "Description": "Line Number"},
+        {"Column": "3-7", "Example": "25544", "Description": "Satellite Catalog Number"},
+        {"Column": 8, "Example": "U", "Description": "Elset Classification"},
+        {"Column": "10-17", "Example": "98067A", "Description": "International Designator"},
+        {"Column": "19-32", "Example": "04236.56031392", "Description": "Element Set Epoch (UTC) *Note: spaces are acceptable in columns 21 & 22"},
+        {"Column": "34-43", "Example": ".00020137", "Description": "1st Derivative of the Mean Motion with respect to Time"},
+        {"Column": "45-52", "Example": "00000-0", "Description": "2nd Derivative of the Mean Motion with respect to Time (decimal point assumed)"},
+        {"Column": "54-61", "Example": "16538-3", "Description": "B* Drag Term"},
+        {"Column": 63, "Example": "0", "Description": "Element Set Type"},
+        {"Column": "65-68", "Example": "999", "Description": "Element Number"},
+        {"Column": 69, "Example": "3", "Description": "Checksum"},
+    ]
+
+    # Create DataFrame
+    tle_df = pd.DataFrame(table_data)
+
+    # Display table
+    st.table(tle_df)
+
+elif selected_option == "About the Model":
+    st.header("About the Model")
+    st.write(
+        """
+        This tool uses a combination of the Simplified General Perturbations (SGP4) model and Machine Learning 
+        to predict satellite orbits. You can paste TLE data to visualize predictions.
         """
     )
 
-elif current_page == "research":
-    # Research Work content
-    st.title("Research Work")
-    st.write("### 📚 Detailed Research on Satellite Orbit Prediction")
+elif selected_option == "Contact":
+    st.header("Contact")
     st.write(
         """
-        Learn about the research and methodologies used for satellite orbit prediction, including the hybrid 
-        modeling approach combining SGP4 and machine learning.
+        For support or collaboration, please reach out to the development team.
         """
     )
+
