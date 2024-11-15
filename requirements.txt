@@ -10,5 +10,6 @@ streamlit_echarts
 streamlit-option-menu
 statsmodels
 scikit-learn
+pmdarima
 tensorflow
 
