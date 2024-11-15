@@ -11,12 +11,14 @@ PAGES = {
 }
 
 # Define navigation buttons
-st.sidebar.title("Navigation")
-st.sidebar.write("Choose a page:")
-page = st.sidebar.radio("", list(PAGES.keys()), index=0)
+st.title("Codeplay Satellite Orbit Predictor")
+st.markdown("---")
+page = st.selectbox("Choose a page:", options=list(PAGES.keys()))
 
-# Show selected page
+# Load and display the selected page
 if page == "Home":
     exec(open(PAGES[page]).read())
-elif page
-
+elif page == "Globe Visualization":
+    exec(open(PAGES[page]).read())
+elif page == "Research Work":
+    exec(open(PAGES[page]).read())
