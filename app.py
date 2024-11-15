@@ -3,14 +3,10 @@ import pandas as pd
 import plotly.express as px
 import os
 
-# Set page configuration
 st.set_page_config(page_title="Codeplay-Satellite Orbit Predictor", page_icon="🛰️", layout="wide")
 
 # Display the app name and logo on the main page
 st.title("Codeplay-Satellite Orbit Predictor")
-logo_path = "assets/isrologo1.png"
-if os.path.exists(logo_path):
-    st.image(logo_path, width=200)
 
 # Introduction text
 st.write("Welcome to the Codeplay Satellite Orbit Predictor. This tool allows you to input TLE data to predict satellite orbits with precision. Use the sections in the sidebar to navigate.")
