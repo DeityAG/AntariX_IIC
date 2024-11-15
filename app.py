@@ -1,62 +1,113 @@
 import streamlit as st
-from st_pages import Page, show_pages, add_indentation, Section
-from streamlit_lottie import st_lottie
+import pandas as pd
+import plotly.express as px
 import json
+from streamlit_lottie import st_lottie
+from streamlit_echarts import st_echarts
 
-# Set page configuration
-st.set_page_config(layout="wide", page_title="Orbit Predictor", page_icon="🌌")
-
-# Set up sidebar with sections and pages
-show_pages(
-    [
-        Section(name="Main Menu", icon="🏠"),
-        Page("app.py", "Introduction", ""),
-        Section(name="Modules", icon="🛰️"),
-        Page("pages/orbit_prediction.py", "Orbit Prediction", ""),
-        Page("pages/error_analysis.py", "Error Analysis", ""),
-        Page("pages/visualization.py", "3D Visualization", ""),
-        Section(name="Tools", icon="🛠️"),
-        Page("pages/settings.py", "Settings", ""),
-    ]
-)
-add_indentation()
-
-# Sidebar info section
-with st.sidebar:
-    st.sidebar.title("About")
-    st.sidebar.info(
-        """
-        🔗 [Your Project Website](https://your-project-link.com)
-
-        ©️ 2024 Your Project Name
-    """
-    )
-
-# Main content layout
-st.title("Orbit Predictor - Hands on with Satellite Data")
+# Page config
+st.set_page_config(page_title="Orbit Predictor", page_icon="🛰️", layout="wide")
 
 # Load Lottie animation
-with open('assets/lottie.json', 'r') as f:
-    lottie_data = json.load(f)
+def load_lottie_animation(filepath: str):
+    with open(filepath, "r") as f:
+        return json.load(f)
 
-# Layout with columns
-col1, col2 = st.columns([0.3, 0.7])
+lottie_data = load_lottie_animation("assets/lottie.json")
 
-with col1:
-    st.write("""
-        Welcome to the Orbit Predictor module. This tool helps you analyze satellite orbit data 
-        using a hybrid model combining SGP4 with machine learning for improved accuracy.
-        Explore our modules to start your satellite data journey!
-    """)
+# Sidebar
+with st.sidebar:
+    st.title("Orbit Predictor")
+    st_lottie(lottie_data, height=200, key="lottie")
+    st.markdown("---")
+    
+    st.header("Navigation")
+    selected_page = st.radio("Go to", ["Introduction", "Orbit Prediction", "Error Analysis", "3D Visualization", "Settings"])
 
-with col2:
-    st_lottie(lottie_data, key="orbit_animation", height=300, width=300)
+    st.markdown("### About")
+    st.info(
+        """
+        This app allows you to visualize and predict satellite orbits using TLE data.
+        For more information, visit [Your Project Website](https://your-project-link.com).
+        """
+    )
 
-# Hide Streamlit default menu and footer for a cleaner layout
-hide_streamlit_style = """
-    <style>
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    </style>
-"""
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+# Main content based on selected page
+if selected_page == "Introduction":
+    st.title("Orbit Predictor - Satellite Data Visualization")
+    st.write("Welcome to the Orbit Predictor! Explore different modules to analyze satellite orbit data.")
+
+elif selected_page == "Orbit Prediction":
+    st.title("Orbit Prediction")
+    st.write("Use this module to predict satellite orbits with the SGP4 and hybrid ML models.")
+    tle_input = st.text_area("Enter TLE data for prediction", placeholder="Two-Line Element (TLE) data")
+    if st.button("Run Prediction"):
+        st.write("Performing orbit prediction...")  # Placeholder for actual prediction function
+
+elif selected_page == "Error Analysis":
+    st.title("Error Analysis")
+    st.write("Visualize error trends over different prediction horizons.")
+
+    # Sample TLE Data (replace with actual data as needed)
+    sample_data = {
+        "OBJECT_NAME": ["STARLINK-1008", "STARLINK-1009", "STARLINK-1010", "STARLINK-1011", "STARLINK-1012"],
+        "OBJECT_ID": ["2019-074B", "2019-074C", "2019-074D", "2019-074E", "2019-074F"],
+        "EPOCH": ["2024-11-14T14:50:59", "2024-11-15T06:00:00", "2024-11-13T21:30:40", "2024-11-15T02:07:42", "2024-11-15T01:27:54"],
+        "MEAN_MOTION": [15.06417543, 15.22839408, 15.06407753, 15.06417043, 15.06414096],
+        "ECCENTRICITY": [0.0001594, 0.0001241, 0.0001563, 0.0001683, 0.0001441],
+        "INCLINATION": [53.0523, 53.0538, 53.0537, 53.055, 53.0525]
+    }
+    df = pd.DataFrame(sample_data)
+
+    # Display TLE Data
+    st.subheader("TLE Data")
+    st.write("The following TLE data is used for satellite orbit visualization and prediction.")
+    st.dataframe(df)
+
+    # Visualization of MEAN_MOTION trends
+    st.subheader("Visualization: Mean Motion of Satellites")
+    fig = px.line(df, x="OBJECT_NAME", y="MEAN_MOTION", title="Mean Motion of Satellites", markers=True)
+    st.plotly_chart(fig)
+
+elif selected_page == "3D Visualization":
+    st.title("3D Visualization")
+    
+    # ECharts for interactive visualization
+    st.subheader("Interactive Visualization (ECharts)")
+
+    # Custom EChart configuration
+    options = {
+        "title": {"text": "Eccentricity vs Inclination"},
+        "tooltip": {"trigger": "axis"},
+        "xAxis": {"type": "category", "data": df["OBJECT_NAME"].tolist()},
+        "yAxis": {"type": "value"},
+        "series": [
+            {
+                "name": "Eccentricity",
+                "type": "line",
+                "data": df["ECCENTRICITY"].tolist(),
+                "smooth": True,
+                "lineStyle": {"color": "red"},
+            },
+            {
+                "name": "Inclination",
+                "type": "line",
+                "data": df["INCLINATION"].tolist(),
+                "smooth": True,
+                "lineStyle": {"color": "blue"},
+            },
+        ],
+    }
+
+    st_echarts(options=options, height="400px")
+
+elif selected_page == "Settings":
+    st.title("Settings")
+    st.write("Configure application settings here.")
+
+# Footer with credits
+st.markdown("---")
+st.markdown(
+    '<h6>Developed by [Your Name](https://twitter.com/yourprofile) using Streamlit and ECharts</h6>',
+    unsafe_allow_html=True,
+)
