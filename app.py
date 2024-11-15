@@ -48,14 +48,13 @@ def load_model(filename):
 # ARIMA Model Integration Section
 if selected_option == "ARIMA Model Integration":
     st.header("ARIMA Model Integration")
-    st.write("Upload the pre-trained ARIMA model and forecast satellite orbit errors.")
+    st.write("This section uses a pre-trained ARIMA model to forecast satellite orbit errors.")
 
-    # File uploader for the ARIMA model
-    uploaded_file = st.file_uploader("Upload ARIMA Model (.pkl)", type="pkl")
-
-    if uploaded_file:
+    # Use the pre-defined model path
+    model_path = "arima_model.pkl"  # The model is in your GitHub repository
+    try:
         # Load the ARIMA model
-        loaded_model = load_model(uploaded_file)
+        loaded_model = load_model(model_path)
 
         # Interactive slider for forecast steps
         steps = st.slider("Select Forecast Steps:", min_value=1, max_value=30, value=10, step=1)
@@ -74,8 +73,8 @@ if selected_option == "ARIMA Model Integration":
         ax.set_ylabel("Error")
         ax.legend()
         st.pyplot(fig)
-    else:
-        st.warning("Please upload a valid ARIMA model file (.pkl) to proceed.")
+    except FileNotFoundError:
+        st.error("The ARIMA model file 'arima_model.pkl' was not found. Please ensure the file exists.")
 
 # Handle navigation for Input TLE Data section
 elif selected_option == "Input TLE Data":
