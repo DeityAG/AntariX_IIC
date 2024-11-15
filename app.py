@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 # Display the app title and logo
-st.image("assets/banner.png", use_container_width=True)  
+st.image("assets/banner.jpg", use_container_width=True)  
 st.markdown(
     """
     <h1 style="font-size:36px;">
