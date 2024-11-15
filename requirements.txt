@@ -8,3 +8,4 @@ pandas
 numpy
 streamlit_echarts
 streamlit-option-menu
+streamlit-navigation-bar
