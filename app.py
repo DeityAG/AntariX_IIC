@@ -1,11 +1,14 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import pickle
+import matplotlib.pyplot as plt
+import numpy as np
 
 # Streamlit app configuration
 st.set_page_config(
     page_title="Codeplay-Satellite Orbit Predictor",
-    page_icon="🛰️",
+    page_icon="🛰",
     layout="wide"
 )
 
@@ -19,7 +22,7 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-st.write("### 🛰️ Predicting Satellite Orbits with ML")
+st.write("### 🛰 Predicting Satellite Orbits with ML")
 
 # Introduction text
 st.write(
@@ -32,11 +35,50 @@ st.write(
 # Sidebar for additional functionalities
 st.sidebar.header("Navigation")
 st.sidebar.write("Navigate to different sections:")
-nav_options = ["Input TLE Data", "About the Model", "Contact"]
+nav_options = ["Input TLE Data", "ARIMA Model Integration", "About the Model", "Contact"]
 selected_option = st.sidebar.radio("Choose an option:", nav_options)
 
-# Handle navigation
-if selected_option == "Input TLE Data":
+# Function to load the ARIMA model
+def load_model(filename):
+    with open(filename, 'rb') as file:
+        model = pickle.load(file)
+    st.success(f"Model loaded from {filename}")
+    return model
+
+# ARIMA Model Integration Section
+if selected_option == "ARIMA Model Integration":
+    st.header("ARIMA Model Integration")
+    st.write("Upload the pre-trained ARIMA model and forecast satellite orbit errors.")
+
+    # File uploader for the ARIMA model
+    uploaded_file = st.file_uploader("Upload ARIMA Model (.pkl)", type="pkl")
+
+    if uploaded_file:
+        # Load the ARIMA model
+        loaded_model = load_model(uploaded_file)
+
+        # Interactive slider for forecast steps
+        steps = st.slider("Select Forecast Steps:", min_value=1, max_value=30, value=10, step=1)
+
+        # Forecast errors
+        forecasted_errors = loaded_model.forecast(steps=steps)
+        st.write(f"### Forecasted Errors for {steps} Steps:")
+        st.write(forecasted_errors)
+
+        # Plot the forecasted errors
+        st.subheader("Forecasted Errors Plot")
+        fig, ax = plt.subplots()
+        ax.plot(np.arange(1, steps + 1), forecasted_errors, marker='o', label="Forecasted Errors")
+        ax.set_title("Forecasted Errors")
+        ax.set_xlabel("Steps")
+        ax.set_ylabel("Error")
+        ax.legend()
+        st.pyplot(fig)
+    else:
+        st.warning("Please upload a valid ARIMA model file (.pkl) to proceed.")
+
+# Handle navigation for Input TLE Data section
+elif selected_option == "Input TLE Data":
     # TLE Data Input Section
     st.header("Input TLE Data")
     st.write("Paste or upload your TLE data below:")
@@ -132,4 +174,3 @@ elif selected_option == "Contact":
         For support or collaboration, please reach out to the development team.
         """
     )
-
