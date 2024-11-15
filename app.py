@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from model_predictions import compute_original_trajectory, evaluate_model, plot_single_satellite_with_original
+from pages.model_predictions import compute_original_trajectory, evaluate_model, plot_single_satellite_with_original
 
 # Streamlit app configuration
 st.set_page_config(
