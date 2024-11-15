@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>3D Satellite Visualization</title>
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.93/Build/Cesium/Cesium.js"></script>
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.93/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <style>
+        body, html, #cesiumContainer {
+            width: 100%; 
+            height: 100%; 
+            margin: 0; 
+            padding: 0; 
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div id="cesiumContainer"></div>
+
+    <script>
+        // Initialize Cesium Viewer
+        const viewer = new Cesium.Viewer("cesiumContainer", {
+            terrainProvider: Cesium.createWorldTerrain()
+        });
+
+        // Add sample satellite path
+        const satellitePath = [
+            { longitude: 0, latitude: 0, height: 700000 },  // Sample positions
+            { longitude: 30, latitude: 10, height: 700000 },
+            { longitude: 60, latitude: 20, height: 700000 },
+            { longitude: 90, latitude: 30, height: 700000 }
+        ];
+
+        // Convert the satellite path to Cesium Cartesian3 positions
+        const positions = satellitePath.map(point => {
+            return Cesium.Cartesian3.fromDegrees(point.longitude, point.latitude, point.height);
+        });
+
+        // Add satellite path as a polyline on the globe
+        viewer.entities.add({
+            polyline: {
+                positions: positions,
+                width: 2,
+                material: Cesium.Color.RED
+            }
+        });
+
+        // Add additional paths or predicted paths
+        const predictedPath = [
+            { longitude: 0, latitude: 0, height: 700000 }, 
+            { longitude: 45, latitude: 15, height: 710000 },
+            { longitude: 90, latitude: 25, height: 720000 },
+            { longitude: 135, latitude: 35, height: 730000 }
+        ];
+
+        const predictedPositions = predictedPath.map(point => {
+            return Cesium.Cartesian3.fromDegrees(point.longitude, point.latitude, point.height);
+        });
+
+        viewer.entities.add({
+            polyline: {
+                positions: predictedPositions,
+                width: 2,
+                material: Cesium.Color.BLUE.withAlpha(0.7)
+            }
+        });
+
+        viewer.zoomTo(viewer.entities);
+    </script>
+</body>
+</html>
