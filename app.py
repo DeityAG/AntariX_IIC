@@ -51,12 +51,13 @@ nav_bar()
 # Page content
 if current_page == "app":
     # App content
-    st.title("Antarix")
+    st.image("assets/banner.jpg", use_column_width=True)  # Display the banner at the top
+    st.title("AmtariX")
     st.write("### 🛰️ Predicting Satellite Orbits with ML")
     
     st.write(
         """
-        Welcome to the Antarix. This tool allows you to input TLE (Two-Line Element) data 
+        Welcome to AmtariX. This tool allows you to input TLE (Two-Line Element) data 
         to predict satellite orbits with precision.
         """
     )
@@ -80,54 +81,4 @@ if current_page == "app":
         st.success("TLE data uploaded successfully!")
     
     # Process the TLE input and generate predictions
-    if st.button("Run Prediction"):
-        if tle_input.strip():
-            st.write("Processing TLE data...")
-            st.session_state['tle_data'] = tle_input.strip()
-            
-            # Placeholder for predictions (to be replaced with your ML model)
-            predictions = {
-                "Satellite": ["ISS (ZARYA)", "CSS (TIANHE)", "ISS (NAUKA)", "FREGAT DEB"],
-                "Predicted Altitude (km)": [420, 400, 430, 370],  # Dummy data
-                "Predicted Velocity (km/s)": [7.66, 7.7, 7.68, 7.5],  # Dummy data
-                "Orbital Inclination (°)": [51.6, 41.4, 51.6, 51.6],  # Dummy data
-            }
-            df = pd.DataFrame(predictions)
-            
-            # Display results
-            st.header("Prediction Results")
-            st.dataframe(df)
-            
-            # Visualize results
-            st.write("### Graph of Predictions")
-            fig = px.bar(
-                df,
-                x="Satellite",
-                y="Predicted Altitude (km)",
-                title="Altitude Prediction per Satellite",
-                labels={"Predicted Altitude (km)": "Altitude (km)"}
-            )
-            st.plotly_chart(fig)
-        else:
-            st.error("Please input or upload TLE data before running predictions.")
-
-elif current_page == "globe":
-    # Globe Visualization content
-    st.title("Globe Visualization")
-    st.write("### 🗺️ Visualizing Satellite Orbits Globally")
-    st.write(
-        """
-        This section is under development and will provide an interactive 3D globe to visualize satellite orbits.
-        """
-    )
-
-elif current_page == "research":
-    # Research Work content
-    st.title("Research Work")
-    st.write("### 📚 Detailed Research on Satellite Orbit Prediction")
-    st.write(
-        """
-        Learn about the research and methodologies used for satellite orbit prediction, including the hybrid 
-        modeling approach combining SGP4 and machine learning.
-        """
-    )
+    if st.button
