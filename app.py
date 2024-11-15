@@ -9,27 +9,58 @@ st.set_page_config(
     layout="wide"
 )
 
-# Display the app title and logo
-st.title("Codeplay-Satellite Orbit Predictor")
-st.write("### 🛰️ Predicting Satellite Orbits with ML")
+# Function to create a horizontal navigation bar
+def nav_bar():
+    st.markdown(
+        """
+        <style>
+        .nav-bar {
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-around;
+        }
+        .nav-bar a {
+            text-decoration: none;
+            color: #007bff;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .nav-bar a:hover {
+            text-decoration: underline;
+            color: #0056b3;
+        }
+        </style>
+        <div class="nav-bar">
+            <a href="/?nav=app" target="_self">App</a>
+            <a href="/?nav=globe" target="_self">Globe Visualization</a>
+            <a href="/?nav=research" target="_self">Research Work</a>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-# Introduction text
-st.write(
-    """
-    Welcome to the Codeplay Satellite Orbit Predictor. This tool allows you to input TLE (Two-Line Element) data 
-    to predict satellite orbits with precision. Use the sections in the sidebar to navigate.
-    """
-)
+# Determine the current page from query parameters
+query_params = st.experimental_get_query_params()
+current_page = query_params.get("nav", ["app"])[0]
 
-# Sidebar for additional functionalities
-st.sidebar.header("Navigation")
-st.sidebar.write("Navigate to different sections:")
-nav_options = ["Input TLE Data", "About the Model", "Contact"]
-selected_option = st.sidebar.radio("Choose an option:", nav_options)
+# Display navigation bar
+nav_bar()
 
-# Handle navigation
-if selected_option == "Input TLE Data":
-
+# Page content
+if current_page == "app":
+    # App content
+    st.title("Codeplay-Satellite Orbit Predictor")
+    st.write("### 🛰️ Predicting Satellite Orbits with ML")
+    
+    st.write(
+        """
+        Welcome to the Codeplay Satellite Orbit Predictor. This tool allows you to input TLE (Two-Line Element) data 
+        to predict satellite orbits with precision.
+        """
+    )
+    
     # TLE Data Input Section
     st.header("Input TLE Data")
     st.write("Paste or upload your TLE data below:")
@@ -80,19 +111,23 @@ if selected_option == "Input TLE Data":
         else:
             st.error("Please input or upload TLE data before running predictions.")
 
-elif selected_option == "About the Model":
-    st.header("About the Model")
+elif current_page == "globe":
+    # Globe Visualization content
+    st.title("Globe Visualization")
+    st.write("### 🗺️ Visualizing Satellite Orbits Globally")
     st.write(
         """
-        This tool uses a combination of the Simplified General Perturbations (SGP4) model and Machine Learning 
-        to predict satellite orbits. You can paste TLE data to visualize predictions.
+        This section is under development and will provide an interactive 3D globe to visualize satellite orbits.
         """
     )
 
-elif selected_option == "Contact":
-    st.header("Contact")
+elif current_page == "research":
+    # Research Work content
+    st.title("Research Work")
+    st.write("### 📚 Detailed Research on Satellite Orbit Prediction")
     st.write(
         """
-        For support or collaboration, please reach out to the development team.
+        Learn about the research and methodologies used for satellite orbit prediction, including the hybrid 
+        modeling approach combining SGP4 and machine learning.
         """
     )
