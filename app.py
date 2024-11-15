@@ -6,9 +6,6 @@ import os
 # Set page configuration
 st.set_page_config(page_title="Codeplay-Satellite Orbit Predictor", page_icon="🛰️", layout="wide")
 
-# Sidebar Navigation
-st.sidebar.title("Codeplay Satellite Orbit Predictor")
-
 # Display the app name and logo on the main page
 st.title("Codeplay-Satellite Orbit Predictor")
 logo_path = "assets/isrologo1.png"
