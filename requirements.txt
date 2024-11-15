@@ -9,7 +9,6 @@ numpy
 streamlit_echarts
 streamlit-option-menu
 statsmodels
-pickle
 scikit-learn
 tensorflow
 
