@@ -5,6 +5,7 @@ import pickle
 import matplotlib.pyplot as plt
 import numpy as np
 import warnings
+import streamlit.components.v1 as components  # Import the components module for embedding HTML
 
 # Streamlit app configuration
 st.set_page_config(
@@ -14,7 +15,7 @@ st.set_page_config(
 )
 
 # Display the app title and logo
-st.image("assets/banner.jpg", use_container_width=True)
+st.image("assets/banner.png", use_container_width=True)
 st.markdown(
     """
     <h1 style="font-size:36px;">
@@ -35,7 +36,7 @@ st.write(
 # Sidebar for navigation
 st.sidebar.header("Navigation")
 st.sidebar.write("Navigate to different sections:")
-nav_options = ["Input Data", "ARIMA Model Integration", "About the Model", "Contact"]
+nav_options = ["Input Data", "ARIMA Model Integration", "About the Model", "Contact", "Colab Notebook"]
 selected_option = st.sidebar.radio("Choose an option:", nav_options)
 
 # Function to load the ARIMA model
@@ -44,11 +45,11 @@ def load_model(filename):
         # Temporarily suppress numpy warnings
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore', 
-                                 message="numpy.dtype size changed",
-                                 category=RuntimeWarning)
+                                     message="numpy.dtype size changed",
+                                     category=RuntimeWarning)
             warnings.filterwarnings('ignore', 
-                                 message="numpy.ufunc size changed",
-                                 category=RuntimeWarning)
+                                     message="numpy.ufunc size changed",
+                                     category=RuntimeWarning)
             
             with open(filename, 'rb') as file:
                 model = pickle.load(file)
@@ -104,7 +105,7 @@ if selected_option == "Input Data":
                 # Validate dimensions of the inputs
                 if true_positions.shape != sgp4_positions.shape:
                     st.error(f"Shape mismatch: Synthetic True Positions ({true_positions.shape}) and SGP4 Predictions ({sgp4_positions.shape}) must have the same dimensions.")
-                    st.stop()  # Replace return with st.stop()
+                    st.stop()
 
                 # Display the processed data
                 st.write("### Processed Input Data")
@@ -187,4 +188,26 @@ elif selected_option == "Contact":
         """
         For support or collaboration, please reach out to the development team.
         """
+    )
+
+# Colab Notebook Section
+elif selected_option == "Colab Notebook":
+    st.header("Google Colab Notebook")
+    st.write(
+        """
+        Below is the embedded Google Colab notebook showcasing the code and demonstration for the Satellite Orbit Predictor.
+        """
+    )
+    # Embed the Colab notebook using iframe
+    components.html(
+        """
+        <iframe 
+            src="https://colab.research.google.com/drive/1aMT6vNMuZ1NiU5djXvtBLmU_zw7OuvEI?usp=sharing" 
+            width="100%" 
+            height="800" 
+            frameborder="0">
+        </iframe>
+        """,
+        height=800,  # Adjust height as needed
+        scrolling=True
     )
