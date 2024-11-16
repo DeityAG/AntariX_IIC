@@ -69,73 +69,51 @@ def plot_predictions(true_positions, sgp4_positions, hybrid_positions, days):
     st.pyplot(plt)
 
 # Handle navigation for Input Data section
-if selected_option == "Input Data":
-    st.header("Input Synthetic True Positions and SGP4 Predictions")
-    st.write(
-        """
-        Paste the synthetic true positions and SGP4 predictions below (comma-separated values).
-        """
-    )
+if st.button("Run Prediction"):
+    if true_positions_input.strip() and sgp4_positions_input.strip():
+        try:
+            # Process input data into NumPy arrays
+            true_positions = np.array([
+                list(map(float, row.split(',')))
+                for row in true_positions_input.strip().split('\n')
+                if row.strip()  # Ignore empty lines
+            ])
+            sgp4_positions = np.array([
+                list(map(float, row.split(',')))
+                for row in sgp4_positions_input.strip().split('\n')
+                if row.strip()  # Ignore empty lines
+            ])
 
-    # Text areas for input
-    true_positions_input = st.text_area(
-        "Enter Synthetic True Positions (comma-separated for each row):",
-        height=150,
-        placeholder="Example:\n7212.65174,-2025.17796,1139.87170\n3052.87766,-624.96185,6897.97492\n..."
-    )
-    
-    sgp4_positions_input = st.text_area(
-        "Enter SGP4 Predictions (comma-separated for each row):",
-        height=150,
-        placeholder="Example:\n7004.25368,-1927.28567,2150.51236\n2122.34933,-340.74298,7255.98930\n..."
-    )
+            # Validate dimensions of the inputs
+            if true_positions.shape != sgp4_positions.shape:
+                st.error(f"Shape mismatch: Synthetic True Positions ({true_positions.shape}) and SGP4 Predictions ({sgp4_positions.shape}) must have the same dimensions.")
+                return  # Correctly placed inside the function
 
-    if st.button("Run Prediction"):
-        if true_positions_input.strip() and sgp4_positions_input.strip():
-            try:
-                # Process input data into NumPy arrays
-                true_positions = np.array([
-                    list(map(float, row.split(',')))
-                    for row in true_positions_input.strip().split('\n')
-                    if row.strip()  # Ignore empty lines
-                ])
-                sgp4_positions = np.array([
-                    list(map(float, row.split(',')))
-                    for row in sgp4_positions_input.strip().split('\n')
-                    if row.strip()  # Ignore empty lines
-                ])
+            # Display the processed data
+            st.write("### Processed Input Data")
+            st.write("**Synthetic True Positions**")
+            st.write(true_positions)
+            st.write("**SGP4 Predictions**")
+            st.write(sgp4_positions)
 
-                # Validate dimensions of the inputs
-                if true_positions.shape != sgp4_positions.shape:
-                    st.error(f"Shape mismatch: Synthetic True Positions ({true_positions.shape}) and SGP4 Predictions ({sgp4_positions.shape}) must have the same dimensions.")
-                    return
+            # Load the ARIMA model
+            model_path = "arima_model.pkl"  # Update with the correct path to your model
+            loaded_model = load_model(model_path)
 
-                # Display the processed data
-                st.write("### Processed Input Data")
-                st.write("**Synthetic True Positions**")
-                st.write(true_positions)
-                st.write("**SGP4 Predictions**")
-                st.write(sgp4_positions)
+            if loaded_model:
+                # Generate hybrid predictions
+                hybrid_positions = hybrid_predictions(sgp4_positions, loaded_model, steps=len(sgp4_positions))
 
-                # Load the ARIMA model
-                model_path = "arima_model.pkl"  # Update with the correct path to your model
-                loaded_model = load_model(model_path)
+                # Plot results
+                st.write("### Prediction Results")
+                plot_predictions(true_positions, sgp4_positions, hybrid_positions, days=len(sgp4_positions))
 
-                if loaded_model:
-                    # Generate hybrid predictions
-                    steps = len(sgp4_positions)
-                    hybrid_positions = hybrid_predictions(sgp4_positions, loaded_model, steps=steps)
-
-                    # Plot results
-                    st.write("### Prediction Results")
-                    plot_predictions(true_positions, sgp4_positions, hybrid_positions, days=steps)
-
-            except ValueError as ve:
-                st.error(f"Invalid input data. Please ensure all rows are valid comma-separated numbers. Error: {ve}")
-            except Exception as e:
-                st.error(f"An unexpected error occurred while processing the input data: {e}")
-        else:
-            st.error("Please provide both synthetic true positions and SGP4 predictions.")
+        except ValueError as ve:
+            st.error(f"Invalid input data. Please ensure all rows are valid comma-separated numbers. Error: {ve}")
+        except Exception as e:
+            st.error(f"An unexpected error occurred while processing the input data: {e}")
+    else:
+        st.error("Please provide both synthetic true positions and SGP4 predictions.")
     
     # Add TLE Data Table
     st.header("TLE Data Table")
