@@ -45,13 +45,33 @@ def load_model(filename):
     st.success(f"Model loaded from {filename}")
     return model
 
+# Function to generate hybrid predictions
+def hybrid_predictions(sgp4_positions, arima_model, steps=30):
+    forecasted_errors = arima_model.forecast(steps=steps)
+    sgp4_distances = np.linalg.norm(sgp4_positions, axis=1)
+    hybrid_distances = sgp4_distances[:steps] + forecasted_errors
+    return hybrid_distances
+
+# Function to plot predictions
+def plot_predictions(true_positions, sgp4_positions, hybrid_positions, days):
+    plt.figure(figsize=(10, 6))
+    plt.plot(range(days), np.linalg.norm(true_positions, axis=1)[:days], label="True Trajectory", color="green")
+    plt.plot(range(days), np.linalg.norm(sgp4_positions, axis=1)[:days], label="SGP4 Prediction", color="blue", linestyle="--")
+    plt.plot(range(days), hybrid_positions, label="Hybrid Prediction", color="red", linestyle="-.")
+    plt.title("Trajectory Predictions")
+    plt.xlabel("Days")
+    plt.ylabel("Distance (km)")
+    plt.legend()
+    plt.grid(True)
+    st.pyplot(plt)
+
 # ARIMA Model Integration Section
 if selected_option == "ARIMA Model Integration":
     st.header("ARIMA Model Integration")
     st.write("This section uses a pre-trained ARIMA model to forecast satellite orbit errors.")
 
     # Use the pre-defined model path
-    model_path = "arima_model.pkl"  # The model is in your GitHub repository
+    model_path = "arima_model.pkl"  # The model is in your repository
     try:
         # Load the ARIMA model
         loaded_model = load_model(model_path)
@@ -59,20 +79,21 @@ if selected_option == "ARIMA Model Integration":
         # Interactive slider for forecast steps
         steps = st.slider("Select Forecast Steps:", min_value=1, max_value=30, value=10, step=1)
 
-        # Forecast errors
-        forecasted_errors = loaded_model.forecast(steps=steps)
-        st.write(f"### Forecasted Errors for {steps} Steps:")
-        st.write(forecasted_errors)
+        # SGP4 positions input
+        sgp4_positions = np.random.rand(100, 3) * 1000  # Replace with real data
+        true_positions = sgp4_positions + np.random.normal(0, 50, sgp4_positions.shape)  # Example synthetic truth
 
-        # Plot the forecasted errors
-        st.subheader("Forecasted Errors Plot")
-        fig, ax = plt.subplots()
-        ax.plot(np.arange(1, steps + 1), forecasted_errors, marker='o', label="Forecasted Errors")
-        ax.set_title("Forecasted Errors")
-        ax.set_xlabel("Steps")
-        ax.set_ylabel("Error")
-        ax.legend()
-        st.pyplot(fig)
+        # Generate hybrid predictions
+        hybrid_positions = hybrid_predictions(sgp4_positions, loaded_model, steps=steps)
+
+        # Display prediction results
+        st.write(f"### Hybrid Predictions for {steps} Steps:")
+        st.write(hybrid_positions[:steps])
+
+        # Plot the predictions
+        st.subheader("Prediction Plot")
+        plot_predictions(true_positions, sgp4_positions, hybrid_positions, steps)
+
     except FileNotFoundError:
         st.error("The ARIMA model file 'arima_model.pkl' was not found. Please ensure the file exists.")
 
