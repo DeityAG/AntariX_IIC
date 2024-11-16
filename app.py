@@ -5,6 +5,85 @@ import pickle
 import matplotlib.pyplot as plt
 import numpy as np
 
+# Function to load the ARIMA model
+def load_model(filename):
+    try:
+        with open(filename, 'rb') as file:
+            model = pickle.load(file)
+        st.success(f"Model loaded from {filename}")
+        return model
+    except Exception as e:
+        st.error(f"Failed to load model from {filename}. Error: {e}")
+        return None
+
+# Function to generate hybrid predictions
+def hybrid_predictions(sgp4_positions, arima_model, steps=30):
+    forecasted_errors = arima_model.forecast(steps=steps)
+    sgp4_distances = np.linalg.norm(sgp4_positions, axis=1)
+    hybrid_distances = sgp4_distances[:steps] + forecasted_errors
+    return hybrid_distances
+
+# Function to plot predictions
+def plot_predictions(true_positions, sgp4_positions, hybrid_positions, days):
+    plt.figure(figsize=(10, 6))
+    plt.plot(range(days), np.linalg.norm(true_positions, axis=1)[:days], label="True Trajectory", color="green")
+    plt.plot(range(days), np.linalg.norm(sgp4_positions, axis=1)[:days], label="SGP4 Prediction", color="blue", linestyle="--")
+    plt.plot(range(days), hybrid_positions, label="Hybrid Prediction", color="red", linestyle="-.")
+    plt.title("Trajectory Predictions")
+    plt.xlabel("Days")
+    plt.ylabel("Distance (km)")
+    plt.legend()
+    plt.grid(True)
+    st.pyplot(plt)
+
+# Function to process input data and make predictions
+def process_and_predict(true_positions_input, sgp4_positions_input):
+    if not true_positions_input.strip() or not sgp4_positions_input.strip():
+        st.error("Please provide both synthetic true positions and SGP4 predictions.")
+        return
+
+    try:
+        # Process input data into NumPy arrays
+        true_positions = np.array([
+            list(map(float, row.split(',')))
+            for row in true_positions_input.strip().split('\n')
+            if row.strip()  # Ignore empty lines
+        ])
+        sgp4_positions = np.array([
+            list(map(float, row.split(',')))
+            for row in sgp4_positions_input.strip().split('\n')
+            if row.strip()  # Ignore empty lines
+        ])
+
+        # Validate dimensions of the inputs
+        if true_positions.shape != sgp4_positions.shape:
+            st.error(f"Shape mismatch: Synthetic True Positions ({true_positions.shape}) and SGP4 Predictions ({sgp4_positions.shape}) must have the same dimensions.")
+            return
+
+        # Display the processed data
+        st.write("### Processed Input Data")
+        st.write("**Synthetic True Positions**")
+        st.write(true_positions)
+        st.write("**SGP4 Predictions**")
+        st.write(sgp4_positions)
+
+        # Load the ARIMA model
+        model_path = "arima_model.pkl"  # Update with the correct path to your model
+        loaded_model = load_model(model_path)
+
+        if loaded_model:
+            # Generate hybrid predictions
+            hybrid_positions = hybrid_predictions(sgp4_positions, loaded_model, steps=len(sgp4_positions))
+
+            # Plot results
+            st.write("### Prediction Results")
+            plot_predictions(true_positions, sgp4_positions, hybrid_positions, days=len(sgp4_positions))
+
+    except ValueError as ve:
+        st.error(f"Invalid input data. Please ensure all rows are valid comma-separated numbers. Error: {ve}")
+    except Exception as e:
+        st.error(f"An unexpected error occurred while processing the input data: {e}")
+
 # Streamlit app configuration
 st.set_page_config(
     page_title="Codeplay-Satellite Orbit Predictor",
@@ -37,37 +116,6 @@ st.sidebar.write("Navigate to different sections:")
 nav_options = ["Input Data", "ARIMA Model Integration", "About the Model", "Contact"]
 selected_option = st.sidebar.radio("Choose an option:", nav_options)
 
-# Function to load the ARIMA model
-def load_model(filename):
-    try:
-        with open(filename, 'rb') as file:
-            model = pickle.load(file)
-        st.success(f"Model loaded from {filename}")
-        return model
-    except Exception as e:
-        st.error(f"Failed to load model from {filename}. Error: {e}")
-        return None
-
-# Function to generate hybrid predictions
-def hybrid_predictions(sgp4_positions, arima_model, steps=30):
-    forecasted_errors = arima_model.forecast(steps=steps)
-    sgp4_distances = np.linalg.norm(sgp4_positions, axis=1)
-    hybrid_distances = sgp4_distances[:steps] + forecasted_errors
-    return hybrid_distances
-
-# Function to plot predictions
-def plot_predictions(true_positions, sgp4_positions, hybrid_positions, days):
-    plt.figure(figsize=(10, 6))
-    plt.plot(range(days), np.linalg.norm(true_positions, axis=1)[:days], label="True Trajectory", color="green")
-    plt.plot(range(days), np.linalg.norm(sgp4_positions, axis=1)[:days], label="SGP4 Prediction", color="blue", linestyle="--")
-    plt.plot(range(days), hybrid_positions, label="Hybrid Prediction", color="red", linestyle="-.")
-    plt.title("Trajectory Predictions")
-    plt.xlabel("Days")
-    plt.ylabel("Distance (km)")
-    plt.legend()
-    plt.grid(True)
-    st.pyplot(plt)
-
 # Input Data Section
 if selected_option == "Input Data":
     st.header("Input Data")
@@ -76,50 +124,7 @@ if selected_option == "Input Data":
     sgp4_positions_input = st.text_area("Enter SGP4 Predictions (comma-separated per row)")
 
     if st.button("Run Prediction"):
-        if true_positions_input.strip() and sgp4_positions_input.strip():
-            try:
-                # Process input data into NumPy arrays
-                true_positions = np.array([
-                    list(map(float, row.split(',')))
-                    for row in true_positions_input.strip().split('\n')
-                    if row.strip()  # Ignore empty lines
-                ])
-                sgp4_positions = np.array([
-                    list(map(float, row.split(',')))
-                    for row in sgp4_positions_input.strip().split('\n')
-                    if row.strip()  # Ignore empty lines
-                ])
-
-                # Validate dimensions of the inputs
-                if true_positions.shape != sgp4_positions.shape:
-                    st.error(f"Shape mismatch: Synthetic True Positions ({true_positions.shape}) and SGP4 Predictions ({sgp4_positions.shape}) must have the same dimensions.")
-                    return  # Exit the function if there's an error
-
-                # Display the processed data
-                st.write("### Processed Input Data")
-                st.write("**Synthetic True Positions**")
-                st.write(true_positions)
-                st.write("**SGP4 Predictions**")
-                st.write(sgp4_positions)
-
-                # Load the ARIMA model
-                model_path = "arima_model.pkl"  # Update with the correct path to your model
-                loaded_model = load_model(model_path)
-
-                if loaded_model:
-                    # Generate hybrid predictions
-                    hybrid_positions = hybrid_predictions(sgp4_positions, loaded_model, steps=len(sgp4_positions))
-
-                    # Plot results
-                    st.write("### Prediction Results")
-                    plot_predictions(true_positions, sgp4_positions, hybrid_positions, days=len(sgp4_positions))
-
-            except ValueError as ve:
-                st.error(f"Invalid input data. Please ensure all rows are valid comma-separated numbers. Error: {ve}")
-            except Exception as e:
-                st.error(f"An unexpected error occurred while processing the input data: {e}")
-        else:
-            st.error("Please provide both synthetic true positions and SGP4 predictions.")
+        process_and_predict(true_positions_input, sgp4_positions_input)
 
     # Add TLE Data Table
     st.header("TLE Data Table")
@@ -135,19 +140,17 @@ if selected_option == "Input Data":
         {"Column": "3-7", "Example": "25544", "Description": "Satellite Catalog Number"},
         {"Column": 8, "Example": "U", "Description": "Elset Classification"},
         {"Column": "10-17", "Example": "98067A", "Description": "International Designator"},
-        {"Column": "19-32", "Example": "04236.56031392", "Description": "Element Set Epoch (UTC) *Note: spaces are acceptable in columns 21 & 22"},
-        {"Column": "34-43", "Example": ".00020137", "Description": "1st Derivative of the Mean Motion with respect to Time"},
-        {"Column": "45-52", "Example": "00000-0", "Description": "2nd Derivative of the Mean Motion with respect to Time (decimal point assumed)"},
+        {"Column": "19-32", "Example": "04236.56031392", "Description": "Element Set Epoch (UTC)"},
+        {"Column": "34-43", "Example": ".00020137", "Description": "1st Derivative of Mean Motion"},
+        {"Column": "45-52", "Example": "00000-0", "Description": "2nd Derivative of Mean Motion"},
         {"Column": "54-61", "Example": "16538-3", "Description": "B* Drag Term"},
         {"Column": 63, "Example": "0", "Description": "Element Set Type"},
         {"Column": "65-68", "Example": "999", "Description": "Element Number"},
-        {"Column": 69, "Example": "3", "Description": "Checksum"},
+        {"Column": 69, "Example": "3", "Description": "Checksum"}
     ]
 
     # Create DataFrame
     tle_df = pd.DataFrame(table_data)
-
-    # Display table
     st.table(tle_df)
 
 # ARIMA Model Integration Section
