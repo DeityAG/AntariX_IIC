@@ -93,7 +93,7 @@ if selected_option == "Input Data":
                 # Validate dimensions of the inputs
                 if true_positions.shape != sgp4_positions.shape:
                     st.error(f"Shape mismatch: Synthetic True Positions ({true_positions.shape}) and SGP4 Predictions ({sgp4_positions.shape}) must have the same dimensions.")
-                    return  # Exit the function if there's an error
+                    st.stop()  # Replace return with st.stop()
 
                 # Display the processed data
                 st.write("### Processed Input Data")
