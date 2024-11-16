@@ -31,7 +31,7 @@ st.write(
     """
 )
 
-# Sidebar for additional functionalities
+# Sidebar for navigation
 st.sidebar.header("Navigation")
 st.sidebar.write("Navigate to different sections:")
 nav_options = ["Input Data", "ARIMA Model Integration", "About the Model", "Contact"]
@@ -39,10 +39,14 @@ selected_option = st.sidebar.radio("Choose an option:", nav_options)
 
 # Function to load the ARIMA model
 def load_model(filename):
-    with open(filename, 'rb') as file:
-        model = pickle.load(file)
-    st.success(f"Model loaded from {filename}")
-    return model
+    try:
+        with open(filename, 'rb') as file:
+            model = pickle.load(file)
+        st.success(f"Model loaded from {filename}")
+        return model
+    except Exception as e:
+        st.error(f"Failed to load model from {filename}. Error: {e}")
+        return None
 
 # Function to generate hybrid predictions
 def hybrid_predictions(sgp4_positions, arima_model, steps=30):
@@ -89,16 +93,24 @@ if selected_option == "Input Data":
     if st.button("Run Prediction"):
         if true_positions_input.strip() and sgp4_positions_input.strip():
             try:
-                # Process input data
+                # Process input data into NumPy arrays
                 true_positions = np.array([
                     list(map(float, row.split(',')))
                     for row in true_positions_input.strip().split('\n')
+                    if row.strip()  # Ignore empty lines
                 ])
                 sgp4_positions = np.array([
                     list(map(float, row.split(',')))
                     for row in sgp4_positions_input.strip().split('\n')
+                    if row.strip()  # Ignore empty lines
                 ])
 
+                # Validate dimensions of the inputs
+                if true_positions.shape != sgp4_positions.shape:
+                    st.error(f"Shape mismatch: Synthetic True Positions ({true_positions.shape}) and SGP4 Predictions ({sgp4_positions.shape}) must have the same dimensions.")
+                    return
+
+                # Display the processed data
                 st.write("### Processed Input Data")
                 st.write("**Synthetic True Positions**")
                 st.write(true_positions)
@@ -109,16 +121,19 @@ if selected_option == "Input Data":
                 model_path = "arima_model.pkl"  # Update with the correct path to your model
                 loaded_model = load_model(model_path)
 
-                # Generate hybrid predictions
-                steps = len(sgp4_positions)
-                hybrid_positions = hybrid_predictions(sgp4_positions, loaded_model, steps=steps)
+                if loaded_model:
+                    # Generate hybrid predictions
+                    steps = len(sgp4_positions)
+                    hybrid_positions = hybrid_predictions(sgp4_positions, loaded_model, steps=steps)
 
-                # Plot results
-                st.write("### Prediction Results")
-                plot_predictions(true_positions, sgp4_positions, hybrid_positions, days=steps)
+                    # Plot results
+                    st.write("### Prediction Results")
+                    plot_predictions(true_positions, sgp4_positions, hybrid_positions, days=steps)
 
+            except ValueError as ve:
+                st.error(f"Invalid input data. Please ensure all rows are valid comma-separated numbers. Error: {ve}")
             except Exception as e:
-                st.error(f"An error occurred while processing the input data: {e}")
+                st.error(f"An unexpected error occurred while processing the input data: {e}")
         else:
             st.error("Please provide both synthetic true positions and SGP4 predictions.")
     
