@@ -4,8 +4,8 @@ import plotly.express as px
 import pickle
 import matplotlib.pyplot as plt
 import numpy as np
-from sgp4.io import twoline2rv
-from sgp4.earth_gravity import wgs72
+# from sgp4.io import twoline2rv
+# from sgp4.earth_gravity import wgs72
 from datetime import datetime, timedelta
 
 # Streamlit app configuration
