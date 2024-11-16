@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import pickle
+import pickle5 as pickle
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -40,10 +40,20 @@ selected_option = st.sidebar.radio("Choose an option:", nav_options)
 # Function to load the ARIMA model
 def load_model(filename):
     try:
-        with open(filename, 'rb') as file:
-            model = pickle.load(file)
-        st.success(f"Model loaded from {filename}")
-        return model
+        # Temporarily suppress numpy warnings about pickle loading
+        import warnings
+        with warnings.catch_warnings():
+            warnings.filterwarnings('ignore', category=RuntimeWarning)
+            
+            # Use pickle protocol 4 for better compatibility
+            with open(filename, 'rb') as file:
+                import pickle5 as pickle  # Use pickle5 instead of standard pickle
+                model = pickle.load(file)
+            st.success(f"Model loaded from {filename}")
+            return model
+    except ImportError:
+        st.error("Please install pickle5: pip install pickle5")
+        return None
     except Exception as e:
         st.error(f"Failed to load model from {filename}. Error: {e}")
         return None
